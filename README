@@ -8,7 +8,7 @@ https://cdn.kernel.org/pub/linux/kernel
 cd linux-5.4.5
 patch -p1 < ../rtnet-v00-preempt_rt-linux-5.4.5-x86_64.patch
 
-- arm patch with beaglebone black rtnet driver (includes PREEMPT_RT)
+- arm (patch with beaglebone black rtnet driver including PREEMPT_RT)
 cd linux-5.4.5
 patch -p1 < ../rtnet-v00-preempt_rt-linux-5.4.5-arm.patch
 
