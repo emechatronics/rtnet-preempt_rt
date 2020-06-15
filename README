@@ -1,0 +1,67 @@
+RTnet on PREEMPT_RT for x86_64 and arm (beaglebone black)
+====
+0. download linux-5.4.5
+https://cdn.kernel.org/pub/linux/kernel
+
+1. apply patch (includes PREEMPT_RT)
+- x86_64
+cd linux-5.4.5
+patch -p1 < ../rtnet-v00-preempt_rt-linux-5.4.5-x86_64.patch
+
+- arm patch with beaglebone black rtnet driver (includes PREEMPT_RT)
+cd linux-5.4.5
+patch -p1 < ../rtnet-v00-preempt_rt-linux-5.4.5-arm.patch
+
+Note: during the patch if you find the following, respond with [n].
+
+patching file scripts/dtc/include-prefixes/arm/am335x-bone-common.dtsi
+Reversed (or previously applied) patch detected!  Assume -R? [n] 
+Apply anyway? [n] 
+Skipping patch.
+1 out of 1 hunk ignored -- saving rejects to file scripts/dtc/include-prefixes/arm/am335x-bone-common.dtsi.rej
+
+
+2. configure and compile linux
+Note: rtnet is in the net folder and must compile into kernel its driver
+(there are selected only ipv4, icmp and udp from the protocol stack).
+cp  .config linux-5.4.5/
+cd linux-5.4.5
+- x86_64
+make -j5 ARCH=x86_64 INSTALL_MOD_PATH=/home/laur/lucru/raspberry-pi/xenomai-x86_64/modules CONFIG_DEBUG_INFO=y bzImage modules modules_install
+- arm
+make -j5 ARCH=arm CROSS_COMPILE="/home/laur/lucru/raspberry-pi/robertcnelson/ti-linux-kernel-dev/dl/gcc-linaro-7.4.1-2019.02-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-" CONFIG_DEBUG_INFO=y INSTALL_MOD_PATH=/home/laur/lucru/rtnet/modules zImage am335x-boneblack.dtb modules modules_install
+accept default values for additional configure variables when building linux
+use buildroot to setup a rootfs for bbb
+
+
+3. boot qemu x86_64 emulator or bbb
+- qemu x86_64 emulator 
+sudo qemu-system-x86_64 -m 1G --enable-kvm -M q35 -kernel bzImage -hda rootfs-50 -append "console=tty1 console=ttyS0 root=/dev/sda rw" -device rtl8139,netdev=bridgeid,mac=52:54:00:11:22:44 -netdev bridge,br=br0,id=bridgeid -serial stdio
+sudo qemu-system-x86_64 -m 1G              -M q35 -kernel bzImage -hda rootfs-50 -append "console=tty1 console=ttyS0 root=/dev/sda rw" -device rtl8139,netdev=bridgeid,mac=52:54:00:11:22:44 -netdev bridge,br=br0,id=bridgeid -serial stdio
+with empty password (ENTER).
+
+
+4. after booting qemu or bbb, read start-modules.sh (a better name would be start-rtnet.sh)
+- on the emulator/bbb:
+./start-modules.sh
+- on the host:
+ping 192.168.1.30
+or
+ping 192.168.1.20
+
+5. There are provided tftp client (both x86_64 and arm)
+and server (for x86_64).
+
+6. Please read rtt-laur.c and rtt-sender.c/rtt-responder.c
+6a. On one rtnet computer:
+./rtt-laur.out
+on another computer
+./rtt-laur.out -d 192.168.1.20
+6b. On one rtnet computer
+./rtt-responder.out
+on another computer
+./rtt-sender -d 192.168.1.20
+
+
+Success,
+laurentiu [dot] duca [at] gmail [dot] com
