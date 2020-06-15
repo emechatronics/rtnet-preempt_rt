@@ -1,4 +1,4 @@
-RTnet on PREEMPT_RT for x86_64 and arm (beaglebone black)
+RTnet (UDP) on PREEMPT_RT for x86_64 and arm (beaglebone black)
 ====
 0. download linux-5.4.5
 https://cdn.kernel.org/pub/linux/kernel
